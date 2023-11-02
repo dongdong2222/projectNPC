@@ -494,6 +494,7 @@ class LLMManager:
 
     # def run_gpt_prompt_pronunciatio(action_description, persona, verbose=False):
 
+    # CLEAR !!
     @staticmethod
     def run_prompt_event_triple(action_description, persona, verbose=False):
         def create_prompt_input(action_description, persona):
@@ -567,8 +568,66 @@ class LLMManager:
                               prompt_input, prompt, output)
 
         return output, [output, prompt, gpt_param, prompt_input, fail_safe]
+
+    #CLEAR !!
     @staticmethod
-    def run_prompt_decide_to_talk(init_persona, target_persona, retrieved, test_input=None):
+    def run_prompt_act_obj_desc(act_game_object, act_desp, persona, verbose=False):
+        def create_prompt_input(act_game_object, act_desp, persona):
+            prompt_input = [act_game_object,
+                            persona.name,
+                            act_desp,
+                            act_game_object,
+                            act_game_object]
+            return prompt_input
+
+        def __func_clean_up(gpt_response, prompt=""):
+            cr = gpt_response.strip()
+            if cr[-1] == ".": cr = cr[:-1]
+            return cr
+
+        def __func_validate(gpt_response, prompt=""):
+            try:
+                gpt_response = __func_clean_up(gpt_response, prompt="")
+            except:
+                return False
+            return True
+
+        def get_fail_safe(act_game_object):
+            fs = f"{act_game_object} is idle"
+            return fs
+
+        # ChatGPT Plugin ===========================================================
+        def __chat_func_clean_up(gpt_response, prompt=""):  ############
+            cr = gpt_response.strip()
+            if cr[-1] == ".": cr = cr[:-1]
+            return cr
+
+        def __chat_func_validate(gpt_response, prompt=""):  ############
+            try:
+                gpt_response = __func_clean_up(gpt_response, prompt="")
+            except:
+                return False
+            return True
+
+        print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 6")  ########
+        gpt_param = {"max_new_tokens": 15,
+                     "temperature": 0.1,
+                     "top_p": 1}
+        prompt_template = "templates_v1/generate_obj_event_v1.txt"  ########
+        prompt_input = create_prompt_input(act_game_object, act_desp, persona)  ########
+        prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
+        example_output = "being fixed"  ########
+        special_instruction = "The output should ONLY contain the phrase that should go in <fill in>."  ########
+        fail_safe = get_fail_safe(act_game_object)  ########
+        output = PromptStructure.generate_response(prompt, gpt_param,5,
+                                                   fail_safe,__func_validate,__func_clean_up)
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+        if output != False:
+            return output, [output, prompt, gpt_param, prompt_input, fail_safe]
+
+
         def create_prompt_input(init_persona, target_persona, retrieved, test_input=None):
             last_chat = init_persona.a_mem.get_last_chat(target_persona.name)
             last_chatted_time = ""
@@ -595,6 +654,51 @@ class LLMManager:
             # act_description은 full_daily_schedule임!
             init_persona_act_desc = init_persona.scratch.act_description
             init_persona_act_desc = remove_bracket(init_persona_act_desc)
+
+    @staticmethod
+    def run_gpt_prompt_act_obj_event_triple(act_game_object, act_obj_desc, persona, verbose=False):
+        def create_prompt_input(act_game_object, act_obj_desc):
+            prompt_input = [act_game_object,
+                            act_obj_desc,
+                            act_game_object]
+            return prompt_input
+
+        def __func_clean_up(gpt_response, prompt=""):
+            cr = gpt_response.strip()
+            cr = [i.strip() for i in cr.split(")")[0].split(",")]
+            return cr
+
+        def __func_validate(gpt_response, prompt=""):
+            try:
+                gpt_response = __func_clean_up(gpt_response, prompt="")
+                if len(gpt_response) != 2:
+                    return False
+            except:
+                return False
+            return True
+
+        def get_fail_safe(act_game_object):
+            fs = (act_game_object, "is", "idle")
+            return fs
+
+        gpt_param = {"engine": "text-davinci-003", "max_tokens": 30,
+                     "temperature": 0, "top_p": 1, "stream": False,
+                     "frequency_penalty": 0, "presence_penalty": 0, "stop": ["\n"]}
+        prompt_template = "persona/prompt_template/v2/generate_event_triple_v1.txt"
+        prompt_input = create_prompt_input(act_game_object, act_obj_desc)
+        prompt = generate_prompt(prompt_input, prompt_template)
+        fail_safe = get_fail_safe(act_game_object)
+        output = safe_generate_response(prompt, gpt_param, 5, fail_safe,
+                                        __func_validate, __func_clean_up)
+        output = (act_game_object, output[0], output[1])
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+
+        return output, [output, prompt, gpt_param, prompt_input, fail_safe]
+
+
 
 
 if __name__ == "__main__":
@@ -653,5 +757,9 @@ if __name__ == "__main__":
     # print(action_game_object)
 
     # test run_prompt_event_triple
-    event_triple = LLMManager.run_prompt_event_triple("opening Hobbs Cafe (unlocking the cafe door)", Isabella)
-    print(event_triple)
+    # event_triple = LLMManager.run_prompt_event_triple("opening Hobbs Cafe (unlocking the cafe door)", Isabella)
+    # print(event_triple)
+
+    # test run_prompt_act_obj_desc
+    obj_desc = LLMManager.run_prompt_act_obj_desc("cafe","opening Hobbs Cafe (unlocking the cafe door)", Isabella)
+    print(obj_desc)
