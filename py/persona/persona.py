@@ -4,6 +4,8 @@ from persona.memory_structure.associative_memory import AssociativeMemory
 from persona.memory_structure.scratch import Scratch
 
 from persona.cognitive_module.perceive import Perceive
+from persona.cognitive_module.retrieve import Retrieve
+from persona.cognitive_module.plan import Plan
 
 class Persona:
     def __init__(self, name, f_memory_saved=False):
@@ -17,11 +19,15 @@ class Persona:
         self.s_mem.save(f"{save_folder}/spatial_memory.json")
         self.a_mem.save(f"{save_folder}/associative_memory")
         self.scratch.save(f"{save_folder}/scratch.json")
-    def receive_event(self, event):
+    def receive_event(self, event, personas):
+        # 임시 변수 : new_day : False, First day, New day
+        new_day = "First_day"
+
+
         # event 발생 시 호출
         perceived = self.perceive(event)
         retrieved = self.retrieve(perceived)
-        # TODO : plan = self.plan(retrieved) -> 진행중...
+        plan = self.plan(personas, new_day, retrieved)
         # TODO : self.reflect()
         # TODO : return self.execute(plan)
 
@@ -30,10 +36,19 @@ class Persona:
         pass
 
     def retrieve(self, perceived):
-        pass
+        '''
+        INPUT:
+            perceive:   a list of <ConceptNode> that are perceived and new.
+        OUTPUT:
+            retrieved:  dictionary of dictionary. The first layer specifies an event,
+                        while the latter layer specifies the "curr_event", "events",
+                        and "thoughts" that are relevant.
+        '''
+        return Retrieve.retrieve(self, perceived)
 
-    def plan(self, retrieve):
-        pass
+
+    def plan(self, personas, new_day, retrieve):
+        return Plan.plan(self, personas, new_day, retrieve)
 
     def execute(self, plan):
         pass

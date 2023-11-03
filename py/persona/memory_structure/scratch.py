@@ -114,7 +114,6 @@ class Scratch:
         self.act_description = None
         # <pronunciatio> is the descriptive expression of the self.description.
         # Currently, it is implemented as emojis.
-        self.act_pronunciatio = None
         # <event_form> represents the event triple that the persona is currently
         # engaged in.
         self.act_event = (self.name, None, None)
@@ -123,7 +122,6 @@ class Scratch:
         self.act_obj_description = None
         # <obj_pronunciatio> is the descriptive expression of the object action.
         # Currently, it is implemented as emojis.
-        self.act_obj_pronunciatio = None
         # <obj_event_form> represents the event triple that the action object is
         # currently engaged in.
         self.act_obj_event = (self.name, None, None)
@@ -206,11 +204,9 @@ class Scratch:
                 self.curr_time = None
             self.act_duration = scratch_load["act_duration"]
             self.act_description = scratch_load["act_description"]
-            self.act_pronunciatio = scratch_load["act_pronunciatio"]
             self.act_event = tuple(scratch_load["act_event"])
 
             self.act_obj_description = scratch_load["act_obj_description"]
-            self.act_obj_pronunciatio = scratch_load["act_obj_pronunciatio"]
             self.act_obj_event = tuple(scratch_load["act_obj_event"])
 
             self.chatting_with = scratch_load["chatting_with"]
@@ -268,11 +264,9 @@ class Scratch:
                                      .strftime("%B %d, %Y, %H:%M:%S"))
         scratch["act_duration"] = self.act_duration
         scratch["act_description"] = self.act_description
-        scratch["act_pronunciatio"] = self.act_pronunciatio
         scratch["act_event"] = self.act_event
 
         scratch["act_obj_description"] = self.act_obj_description
-        scratch["act_obj_pronunciatio"] = self.act_obj_pronunciatio
         scratch["act_obj_event"] = self.act_obj_event
 
         scratch["chatting_with"] = self.chatting_with
@@ -449,20 +443,17 @@ class Scratch:
                        action_address,
                        action_duration,
                        action_description,
-                       action_pronunciatio,
                        action_event,
                        chatting_with,
                        chat,
                        chatting_with_buffer,
                        chatting_end_time,
                        act_obj_description,
-                       act_obj_pronunciatio,
                        act_obj_event,
                        act_start_time=None):
         self.act_address = action_address
         self.act_duration = action_duration
         self.act_description = action_description
-        self.act_pronunciatio = action_pronunciatio
         self.act_event = action_event
 
         self.chatting_with = chatting_with
@@ -472,7 +463,6 @@ class Scratch:
         self.chatting_end_time = chatting_end_time
 
         self.act_obj_description = act_obj_description
-        self.act_obj_pronunciatio = act_obj_pronunciatio
         self.act_obj_event = act_obj_event
 
         self.act_start_time = self.curr_time
@@ -534,7 +524,6 @@ class Scratch:
         exp["start_datetime"] = self.act_start_time
         exp["duration"] = self.act_duration
         exp["description"] = self.act_description
-        exp["pronunciatio"] = self.act_pronunciatio
         return exp
 
     def act_summary_str(self):
