@@ -21,6 +21,7 @@ class EventObserver:
         #event["subject"] : "Isabella Rodriguez"
         #event["predicate"] : "be"
         #event["object"] : "regular"
+        #event["description"] : "Isabella Rodriguez be regular"
         self.personas[persona_name].receive_event(event)
 
 
