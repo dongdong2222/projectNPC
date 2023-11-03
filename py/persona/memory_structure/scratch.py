@@ -290,7 +290,72 @@ class Scratch:
         with open(out_json, "w") as outfile:
             json.dump(scratch, outfile, indent=2)
 
+    def get_f_daily_schedule_index(self, advance=0):
+        """
+        We get the current index of self.f_daily_schedule.
 
+        Recall that self.f_daily_schedule stores the decomposed action sequences
+        up until now, and the hourly sequences of the future action for the rest
+        of today. Given that self.f_daily_schedule is a list of list where the
+        inner list is composed of [task, duration], we continue to add up the
+        duration until we reach "if elapsed > today_min_elapsed" condition. The
+        index where we stop is the index we will return.
+
+        INPUT
+          advance: Integer value of the number minutes we want to look into the
+                   future. This allows us to get the index of a future timeframe.
+        OUTPUT
+          an integer value for the current index of f_daily_schedule.
+        """
+        # We first calculate teh number of minutes elapsed today.
+        today_min_elapsed = 0
+        today_min_elapsed += self.curr_time.hour * 60
+        today_min_elapsed += self.curr_time.minute
+        today_min_elapsed += advance
+
+        x = 0
+        for task, duration in self.f_daily_schedule:
+            x += duration
+        x = 0
+        for task, duration in self.f_daily_schedule_hourly_org:
+            x += duration
+
+        # We then calculate the current index based on that.
+        curr_index = 0
+        elapsed = 0
+        for task, duration in self.f_daily_schedule:
+            elapsed += duration
+            if elapsed > today_min_elapsed:
+                return curr_index
+            curr_index += 1
+
+        return curr_index
+
+    def get_f_daily_schedule_hourly_org_index(self, advance=0):
+        """
+        We get the current index of self.f_daily_schedule_hourly_org.
+        It is otherwise the same as get_f_daily_schedule_index.
+
+        INPUT
+          advance: Integer value of the number minutes we want to look into the
+                   future. This allows us to get the index of a future timeframe.
+        OUTPUT
+          an integer value for the current index of f_daily_schedule.
+        """
+        # We first calculate teh number of minutes elapsed today.
+        today_min_elapsed = 0
+        today_min_elapsed += self.curr_time.hour * 60
+        today_min_elapsed += self.curr_time.minute
+        today_min_elapsed += advance
+        # We then calculate the current index based on that.
+        curr_index = 0
+        elapsed = 0
+        for task, duration in self.f_daily_schedule_hourly_org:
+            elapsed += duration
+            if elapsed > today_min_elapsed:
+                return curr_index
+            curr_index += 1
+        return curr_index
 
     def get_str_iss(self):
         """
