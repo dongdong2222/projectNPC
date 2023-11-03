@@ -1,5 +1,6 @@
 
 import json
+import datetime
 
 from global_methods import *
 from persona.memory_structure.memory_node import MemoryNode
@@ -9,15 +10,63 @@ class AssociativeMemory:
     def __init__(self, f_saved):
         self.id_to_node = dict()
 
-        # self.seq_event = []
-        # self.seq_chat = []
-        # self.seq_thought = []
+        self.seq_event = []
+        self.seq_chat = []
+        self.seq_thought = []
 
         self.kw_to_event = dict()
         self.kw_to_chat = dict()
         self.kw_to_thought = dict()
 
+        # self.kw_strength_event = dict()
+        # self.kw_strength_thought = dict()
+
         self.embeddings = json.load(open(f_saved + "/embeddings.json"))
+
+        #load data in nodes.json
+        nodes_load = json.load(open(f_saved + "/nodes.json"))
+        for count in range(len(nodes_load.keys())):
+            node_id = f"node_{str(count + 1)}"
+            node_details = nodes_load[node_id]
+
+            node_count = node_details["node_count"]
+            type_count = node_details["type_count"]
+            node_type = node_details["type"]
+            depth = node_details["depth"]
+
+            created = datetime.datetime.strptime(node_details["created"],
+                                                 '%Y-%m-%d %H:%M:%S')
+            expiration = None
+            if node_details["expiration"]:
+                expiration = datetime.datetime.strptime(node_details["expiration"],
+                                                        '%Y-%m-%d %H:%M:%S')
+
+            s = node_details["subject"]
+            p = node_details["predicate"]
+            o = node_details["object"]
+
+            description = node_details["description"]
+            embedding_pair = (node_details["embedding_key"],
+                              self.embeddings[node_details["embedding_key"]])
+            poignancy = node_details["poignancy"]
+            keywords = set(node_details["keywords"])
+            filling = node_details["filling"]
+
+            if node_type == "event":
+                self.add_event(created, expiration, s, p, o,
+                               description, keywords, poignancy, embedding_pair, filling)
+            elif node_type == "chat":
+                self.add_chat(created, expiration, s, p, o,
+                              description, keywords, poignancy, embedding_pair, filling)
+            elif node_type == "thought":
+                self.add_thought(created, expiration, s, p, o,
+                                 description, keywords, poignancy, embedding_pair, filling)
+
+        kw_strength_load = json.load(open(f_saved + "/kw_strength.json"))
+        if kw_strength_load["kw_strength_event"]:
+            self.kw_strength_event = kw_strength_load["kw_strength_event"]
+        if kw_strength_load["kw_strength_thought"]:
+            self.kw_strength_thought = kw_strength_load["kw_strength_thought"]
         pass
 
     def save(self, out_json):
@@ -51,33 +100,122 @@ class AssociativeMemory:
             json.dump(out, outfile)
 
 
-    def add_event(self):
+    def add_event(self, created, expiration, s, p, o,
+                      description, keywords, poignancy,
+                      embedding_pair, filling):
+        # Setting up the node ID and counts.
         node_count = len(self.id_to_node.keys()) + 1
-        new_memory_node = MemoryNode(node_count).set_type("event")
+        type_count = len(self.seq_event) + 1
+        node_type = "event"
+        node_id = f"node_{str(node_count)}"
+        depth = 0
 
-        return new_memory_node
+        # Node type specific clean up.
+        if "(" in description:
+            description = (" ".join(description.split()[:3])
+                           + " "
+                           + description.split("(")[-1][:-1])
 
-    def add_chat(self):
-        pass
+        # Creating the <ConceptNode> object.
+        node = MemoryNode(node_id, node_count, type_count, node_type, depth,
+                           created, expiration,
+                           s, p, o,
+                           description, embedding_pair[0],
+                           poignancy, keywords, filling)
 
-    def add_thought(self):
-        node_count = len(self.id_to_node.keys()) + 1
-        new_memory_node = MemoryNode(node_count).set_type("thought")
-        pass
+        # Creating various dictionary cache for fast access.
+        self.seq_event[0:0] = [node]
+        keywords = [i.lower() for i in keywords]
+        for kw in keywords:
+            if kw in self.kw_to_event:
+                self.kw_to_event[kw][0:0] = [node]
+            else:
+                self.kw_to_event[kw] = [node]
+        self.id_to_node[node_id] = node
 
-    def set_memory_nodes(self, nodes):
-        for node in nodes:
-            # self.seq_event[0:0] = [node]
-            keywords = [i.lower() for i in node.keywords]
+        # Adding in the kw_strength
+        if f"{p} {o}" != "is idle":
             for kw in keywords:
-                if kw in self.kw_to_event:
-                    self.kw_to_event[kw][0:0] = [node]
+                if kw in self.kw_strength_event:
+                    self.kw_strength_event[kw] += 1
                 else:
-                    self.kw_to_event[kw] = [node]
-            self.id_to_node[node.node_id] = node
+                    self.kw_strength_event[kw] = 1
 
-            #TODO : set kw_strength
-        pass
+        self.embeddings[embedding_pair[0]] = embedding_pair[1]
+
+        return node
+
+    def add_chat(self, created, expiration, s, p, o,
+                     description, keywords, poignancy,
+                     embedding_pair, filling):
+        node_count = len(self.id_to_node.keys()) + 1
+        type_count = len(self.seq_chat) + 1
+        node_type = "chat"
+        node_id = f"node_{str(node_count)}"
+        depth = 0
+
+        # Creating the <ConceptNode> object.
+        node = MemoryNode(node_id, node_count, type_count, node_type, depth,
+                           created, expiration,
+                           s, p, o,
+                           description, embedding_pair[0], poignancy, keywords, filling)
+
+        # Creating various dictionary cache for fast access.
+        self.seq_chat[0:0] = [node]
+        keywords = [i.lower() for i in keywords]
+        for kw in keywords:
+            if kw in self.kw_to_chat:
+                self.kw_to_chat[kw][0:0] = [node]
+            else:
+                self.kw_to_chat[kw] = [node]
+        self.id_to_node[node_id] = node
+
+        self.embeddings[embedding_pair[0]] = embedding_pair[1]
+
+        return node
+
+    def add_thought(self, created, expiration, s, p, o,
+                        description, keywords, poignancy,
+                        embedding_pair, filling):
+        # Setting up the node ID and counts.
+        node_count = len(self.id_to_node.keys()) + 1
+        type_count = len(self.seq_thought) + 1
+        node_type = "thought"
+        node_id = f"node_{str(node_count)}"
+        depth = 1
+        try:
+            if filling:
+                depth += max([self.id_to_node[i].depth for i in filling])
+        except:
+            pass
+
+        # Creating the <ConceptNode> object.
+        node = MemoryNode(node_id, node_count, type_count, node_type, depth,
+                           created, expiration,
+                           s, p, o,
+                           description, embedding_pair[0], poignancy, keywords, filling)
+
+        # Creating various dictionary cache for fast access.
+        self.seq_thought[0:0] = [node]
+        keywords = [i.lower() for i in keywords]
+        for kw in keywords:
+            if kw in self.kw_to_thought:
+                self.kw_to_thought[kw][0:0] = [node]
+            else:
+                self.kw_to_thought[kw] = [node]
+        self.id_to_node[node_id] = node
+
+        # Adding in the kw_strength
+        if f"{p} {o}" != "is idle":
+            for kw in keywords:
+                if kw in self.kw_strength_thought:
+                    self.kw_strength_thought[kw] += 1
+                else:
+                    self.kw_strength_thought[kw] = 1
+
+        self.embeddings[embedding_pair[0]] = embedding_pair[1]
+
+        return node
 
     def retrieve_relevant_event(self, sub, pre, obj):
         contents = [sub, pre, obj]

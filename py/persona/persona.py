@@ -26,12 +26,7 @@ class Persona:
         # TODO : return self.execute(plan)
 
     def perceive(self, event):
-        if event["type"] == "event":
-            return Perceive.perceive_event(self, event)
-        elif event["type"] == "chat":
-            return Perceive.perceive_chat(self, event)
-        else:
-            return None
+        return Perceive.perceive(self, event)
         pass
 
     def retrieve(self, perceived):
