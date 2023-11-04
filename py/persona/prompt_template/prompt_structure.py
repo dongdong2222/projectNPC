@@ -4,11 +4,12 @@ import traceback
 
 #from utils import *
 from transformers import LlamaForCausalLM, LlamaTokenizer
-
+from sentence_transformers import SentenceTransformer
 
 class PromptStructure:
     model = None
     tokenizer = None
+    embedding_model = None
 
     @staticmethod
     def generate_prompt(curr_input, prompt_lib_file):
@@ -59,9 +60,13 @@ class PromptStructure:
                 print("~~~~")
         return fail_safe_response
 
-    @staticmethod
-    def get_embedding(text):
-        pass
+    @classmethod
+    def get_embedding(cls, text):
+        text = text.replace("\n", " ")
+        if not text:
+            text = "this is blank"
+        embeddings = cls.embedding_model.encode(text)
+        return embeddings
 
     # ---------------------------------------------
     @classmethod
@@ -75,6 +80,10 @@ class PromptStructure:
         )
         cls.model.resize_token_embeddings(cls.model.config.vocab_size + 1)
         cls.model.eval()
+
+    @classmethod
+    def load_embedding_model(cls):
+        cls.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
     @classmethod
     def LLama_request(cls, prompt, llm_parameter=None):
@@ -99,3 +108,4 @@ class PromptStructure:
             print("TOKEN LIMIT EXCEEDED")
             print(traceback_message)
             return "TOKEN LIMIT EXCEEDED"
+
