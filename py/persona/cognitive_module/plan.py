@@ -8,6 +8,7 @@ from utils import *
 from persona.cognitive_module.retrieve import Retrieve
 from persona.prompt_template.llm_manager import LLMManager
 from persona.prompt_template.prompt_structure import PromptStructure
+from persona.cognitive_module.converse import Converse
 
 class Plan:
     def __init__(self):
@@ -20,7 +21,7 @@ class Plan:
             _plan_daily_schedule(persona, new_day)
 
         #part 2 : check current action expired, if expired create new plan
-        if persona.scratch:# TODO : act_check_finished()
+        if persona.scratch.act_check_finished():
             _determine_action(persona)
 
         #part 3 : 대응할 이벤트인지 인지 후 관련 정보 검색
@@ -72,11 +73,11 @@ def _plan_daily_schedule(persona, new_day):
 
     #part 1 : update scratch.daily_plan, scratch.daily_plan_rep
     if new_day == "First day":
-        persona.scratch.daily_plan = generate_first_daily_plan(persona, wake_up_hour)
+        persona.scratch.daily_req = generate_first_daily_plan(persona, wake_up_hour)
     elif new_day == "New day":
         revise_identity(persona)
         # TODO : generate daily_plan
-        persona.scratch.daily_plan = persona.scratch.daily_plan
+        persona.scratch.daily_req = persona.scratch.daily_req
 
     #part 2 : update scratch.full_daily_schedule, scratch.full_daily_schedule_hourly_org
     persona.scratch.full_daily_schedule = generate_hourly_schedule(persona, wake_up_hour)
@@ -84,7 +85,7 @@ def _plan_daily_schedule(persona, new_day):
 
     #part 3 : add plan to the memory
     thought = f"This is {persona.scratch.name}'s plan for {persona.scratch.curr_time.strftime('%A %B %d')}:"
-    for i in persona.scratch.daily_plan:
+    for i in persona.scratch.daily_req:
         thought += f" {i},"
     thought = thought[:-1] + "."
     created = persona.scratch.curr_time
@@ -145,8 +146,7 @@ def generate_hourly_schedule(persona, wake_up_hour):
                     n_m1_activity += ["sleeping"]
                     wake_up_hour -= 1
                 else:
-                    n_m1_activity += [LLMManager.run_prompt_generate_hourly_schedule(
-                        persona, curr_hour_str, n_m1_activity, hour_str)[0]]
+                    n_m1_activity += [LLMManager.run_prompt_generate_hourly_schedule(persona, curr_hour_str, n_m1_activity, hour_str)[0]]
 
     # Step 1. Compressing the hourly schedule to the following format:
     # The integer indicates the number of hours. They should add up to 24.
@@ -261,6 +261,32 @@ def generate_action_game_object(act_desp, act_address, persona):
     return "<random>"
   return LLMManager.run_prompt_action_game_object(act_desp, persona, act_address)[0]
 
+def generate_action_pronunciatio(act_desp, persona):
+  """TODO
+  Given an action description, creates an emoji string description via a few
+  shot prompt.
+
+  Does not really need any information from persona.
+
+  INPUT:
+    act_desp: the description of the action (e.g., "sleeping")
+    persona: The Persona class instance
+  OUTPUT:
+    a string of emoji that translates action description.
+  EXAMPLE OUTPUT:
+    "🧈🍞"
+  """
+  if debug: print ("GNS FUNCTION: <generate_action_pronunciatio>")
+  try:
+    x = LLMManager.run_prompt_pronunciatio(act_desp, persona)[0]
+  except:
+    x = "🙂"
+
+  if not x:
+    return "🙂"
+  return x
+
+
 def generate_action_event_triple(act_desp, persona):
   """TODO
 
@@ -286,12 +312,12 @@ def generate_act_obj_event_triple(act_game_object, act_obj_desc, persona):
     return LLMManager.run_prompt_act_obj_event_triple(act_game_object, act_obj_desc, persona)[0]
 
 
-def generate_convo(maze, init_persona, target_persona):
-    curr_loc = maze.access_tile(init_persona.scratch.curr_tile)
+def generate_convo( init_persona, target_persona):
+    # curr_loc = maze.access_tile(init_persona.scratch.curr_tile)
 
     # convo = run_gpt_prompt_create_conversation(init_persona, target_persona, curr_loc)[0]
     # convo = agent_chat_v1(maze, init_persona, target_persona)
-    convo = agent_chat_v2(maze, init_persona, target_persona) #TODO : coversationd에 있대..
+    convo = Converse.agent_chat_v2(init_persona, target_persona) #TODO : coversationd에 있대..
     all_utt = ""
 
     for row in convo:
@@ -422,7 +448,7 @@ def revise_identity(persona):
 
     focal_point = [f"{p_name}'s plan for {persona.scratch.get_str_curr_date_str()}.",
                    f"Important recent events for {p_name}'s life."]
-    retrieved = Retrieve.retrieve_with_focal(persona, focal_point)
+    retrieved = Retrieve.new_retrieve(persona, focal_point)
 
     statements = "[Statements]\n"
     for key, val in retrieved.items():
@@ -509,7 +535,7 @@ def _long_term_planning(persona, new_day):
     s, p, o = (persona.scratch.name, "plan", persona.scratch.curr_time.strftime('%A %B %d'))
     keywords = {"plan"}
     thought_poignancy = 5
-    thought_embedding_pair = (thought, get_embedding(thought))
+    thought_embedding_pair = (thought, PromptStructure.get_embedding(thought))
     persona.a_mem.add_thought(created, expiration, s, p, o,
                               thought, keywords, thought_poignancy,
                               thought_embedding_pair, None)
@@ -617,7 +643,7 @@ def _determine_action(persona):
 
     # Finding the target location of the action and creating action-related
     # variables.
-    act_world = world_name
+    act_world = f"{persona.scratch.curr_address['world']}"
     # act_sector = maze.access_tile(persona.scratch.curr_tile)["sector"]
     act_sector = generate_action_sector(act_desp, persona)
     act_arena = generate_action_arena(act_desp, persona, act_world, act_sector)
@@ -625,11 +651,11 @@ def _determine_action(persona):
     act_game_object = generate_action_game_object(act_desp, act_address,
                                                   persona)
     new_address = f"{act_world}:{act_sector}:{act_arena}:{act_game_object}"
-    # act_pron = generate_action_pronunciatio(act_desp, persona)
+    act_pron = generate_action_pronunciatio(act_desp, persona)
     act_event = generate_action_event_triple(act_desp, persona)
     # Persona's actions also influence the object states. We set those up here.
     act_obj_desp = generate_act_obj_desc(act_game_object, act_desp, persona)
-    # act_obj_pron = generate_action_pronunciatio(act_obj_desp, persona)
+    act_obj_pron = generate_action_pronunciatio(act_obj_desp, persona)
     act_obj_event = generate_act_obj_event_triple(act_game_object,
                                                   act_obj_desp, persona)
 
@@ -637,12 +663,14 @@ def _determine_action(persona):
     persona.scratch.add_new_action(new_address,
                                    int(act_dura),
                                    act_desp,
+                                   act_pron,
                                    act_event,
                                    None,
                                    None,
                                    None,
                                    None,
                                    act_obj_desp,
+                                   act_obj_pron,
                                    act_obj_event)
 
 def _choose_retrieved(persona, retrieved):
@@ -784,6 +812,7 @@ def _should_react(persona, retrieved, personas):
     #             ["events"] = [<ConceptNode>, ...],
     #             ["thoughts"] = [<ConceptNode>, ...]}
     curr_event = retrieved["curr_event"]
+
 
     if ":" not in curr_event.subject:
         # this is a persona event.

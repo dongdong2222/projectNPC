@@ -1,7 +1,7 @@
 
 from persona.memory_structure.memory_node import MemoryNode
 from persona.prompt_template.llm_manager import LLMManager
-
+from persona.prompt_template.prompt_structure import PromptStructure
 class Perceive:
     # perceive_observation
     # 호출 하나 당 한 번의 event 처리 일단은
@@ -32,7 +32,7 @@ class Perceive:
         new_memory_nodes = []
         chat_node_ids = []
         # if self chat -> create chat memorynode and set in association memory
-        if event[0] == f"{persona.name}" and event[1] == "chat with":
+        if event["subject"] == f"{persona.name}" and event["predicate"] == "chat with":
             chat_node_ids = generate_self_chat_node(persona, event, keywords)
 
         #
@@ -64,8 +64,7 @@ def generate_event_embedding_pair(persona, description):
     if desc_embedding_in in persona.a_mem.embeddings:
         event_embedding = persona.a_mem.embeddings[desc_embedding_in]
     else:
-        #TODO : event_embedding = get_embedding(desc_embedding_in)
-        event_embedding = None
+        event_embedding = PromptStructure.get_embedding(desc_embedding_in)
 
     event_embedding_pair = (desc_embedding_in, event_embedding)
     return event_embedding_pair
@@ -86,8 +85,8 @@ def generate_self_chat_node(persona, p_event, keywords):
         chat_embedding = persona.a_mem.embeddings[
             persona.scratch.act_description]
     else:
-        # chat_embedding = get_embedding(persona.scratch
-        #                                .act_description)
+        chat_embedding = PromptStructure.get_embedding(persona.scratch
+                                       .act_description)
         pass
     chat_embedding_pair = (persona.scratch.act_description,
                            chat_embedding)

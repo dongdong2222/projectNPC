@@ -6,6 +6,7 @@ import traceback
 from transformers import LlamaForCausalLM, LlamaTokenizer
 from sentence_transformers import SentenceTransformer
 
+
 class PromptStructure:
     model = None
     tokenizer = None
@@ -29,6 +30,7 @@ class PromptStructure:
         if type(curr_input) == type("string"):
             curr_input = [curr_input]
         curr_input = [str(i) for i in curr_input]
+
 
         f = open(prompt_lib_file, "r")
         prompt = f.read()
@@ -100,8 +102,8 @@ class PromptStructure:
                 #TODO : 응답만 반환하도록 바꾸기
                 output_text = cls.tokenizer.decode(output[0], skip_sepcial_tokens=True)
                 response_text = output_text.replace(prompt, "").replace("<s>", "").replace("</s>", "").strip()
-                print(f"output text : {output_text}")
-                print(f"response text : {response_text}")
+                # print(f"output text : {output_text}")
+                # print(f"response text : {response_text}")
                 return response_text
         except:
             traceback_message = traceback.format_exc()

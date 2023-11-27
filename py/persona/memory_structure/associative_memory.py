@@ -18,8 +18,8 @@ class AssociativeMemory:
         self.kw_to_chat = dict()
         self.kw_to_thought = dict()
 
-        # self.kw_strength_event = dict()
-        # self.kw_strength_thought = dict()
+        self.kw_strength_event = dict()
+        self.kw_strength_thought = dict()
 
         self.embeddings = json.load(open(f_saved + "/embeddings.json"))
 
@@ -217,24 +217,59 @@ class AssociativeMemory:
 
         return node
 
-    def retrieve_relevant_event(self, sub, pre, obj):
+    def retrieve_relevant_events(self, sub, pre, obj):
         contents = [sub, pre, obj]
 
         ret = []
         for i in contents:
+            i = i.lower()
             if i in self.kw_to_event:
                 ret += self.kw_to_event[i]
 
         ret = set(ret)
         return ret
 
-    def retrieve_relevant_thought(self, sub, pre, obj):
+    def retrieve_relevant_thoughts(self, sub, pre, obj):
         content = [sub, pre, obj]
 
         ret = []
         for i in content:
+            i = i.lower()
             if i in self.kw_to_thought:
-                ret += self.kw_to_thought[i.lower()]
+                ret += self.kw_to_thought[i]
 
         ret = set(ret)
         return ret
+
+    def get_last_chat(self, target_persona_name):
+        if target_persona_name.lower() in self.kw_to_chat:
+            return self.kw_to_chat[target_persona_name.lower()][0]
+        else:
+            return False
+
+    # def get_summarized_latest_events(self, retention):
+    #     ret_set = set()
+    #     for e_node in self.seq_event[:retention]:
+    #         ret_set.add(e_node.spo_summary())
+    #     return ret_set
+    #
+    # def get_str_seq_events(self):
+    #     ret_str = ""
+    #     for count, event in enumerate(self.seq_event):
+    #         ret_str += f'{"Event", len(self.seq_event) - count, ": ", event.spo_summary(), " -- ", event.description}\n'
+    #     return ret_str
+    #
+    # def get_str_seq_thoughts(self):
+    #     ret_str = ""
+    #     for count, event in enumerate(self.seq_thought):
+    #         ret_str += f'{"Thought", len(self.seq_thought) - count, ": ", event.spo_summary(), " -- ", event.description}'
+    #     return ret_str
+    #
+    # def get_str_seq_chats(self):
+    #     ret_str = ""
+    #     for count, event in enumerate(self.seq_chat):
+    #         ret_str += f"with {event.object.content} ({event.description})\n"
+    #         ret_str += f'{event.created.strftime("%B %d, %Y, %H:%M:%S")}\n'
+    #         for row in event.filling:
+    #             ret_str += f"{row[0]}: {row[1]}\n"
+    #     return ret_str

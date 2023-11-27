@@ -6,12 +6,11 @@ import ast
 import re
 import json
 import sys
-
 # sys.path.append("../../")
 from utils import *
 from global_methods import *
 from persona.prompt_template.prompt_structure import PromptStructure
-from print_prompt import *
+from .print_prompt import *
 
 class LLMManager:
 
@@ -49,7 +48,9 @@ class LLMManager:
 
         def __func_validate(llm_response, prompt=""):
             try: __func_clean_up(llm_response, prompt="")
-            except: return False
+            except:
+                print("run_prompt_wake_up_hour __func_validate fail")
+                return False
             return True
 
         #response 생성에 실패시 할당할 값
@@ -60,7 +61,7 @@ class LLMManager:
         llm_param = { "max_new_tokens": 5,
                       "temperature": 0.8,
                       "top_p": 1}
-        prompt_template = "templates_v1/wake_up_hour_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/wake_up_hour_v1.txt"
         prompt_input = create_prompt_input(persona, test_input)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         fail_safe = get_fail_safe()
@@ -94,7 +95,9 @@ class LLMManager:
 
         def __func_validate(llm_response, prompt=""):
             try: __func_clean_up(llm_response, prompt="")
-            except: return False
+            except:
+                print("run_prompt_daily_plan __func_validate fail")
+                return False
             return True
 
         def get_fail_safe():
@@ -110,7 +113,7 @@ class LLMManager:
         llm_param = { "max_new_tokens": 500,
                       "temperature": 1,
                       "top_p": 1}
-        prompt_template = "templates_v1/daily_planning_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/daily_planning_v1.txt"
         prompt_input = create_prompt_input(persona, wake_up_hour, test_input)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         fail_safe = get_fail_safe()
@@ -186,14 +189,19 @@ class LLMManager:
 
         def __func_clean_up(gpt_response, prompt=""):
             cr = gpt_response.strip()
-            if cr[-1] == ".":
-                cr = cr[:-1]
-            return
+            cr = cr.split(".")[0]
+            cr = cr.split("\n")[0]
+            cr = cr.split("[")[0]
+
+            # if cr[-1] == ".":
+            #     cr = cr[:-1]
+            return cr
 
         def __func_validate(gpt_response, prompt=""):
             try:
                 __func_clean_up(gpt_response, prompt="")
             except:
+                print("run_prompt_generate_hourly_schedule __func_validate fail")
                 return False
             return True
 
@@ -207,7 +215,7 @@ class LLMManager:
         # gpt_param = {"engine": "text-davinci-003", "max_tokens": 50,
         #              "temperature": 0.5, "top_p": 1, "stream": False,
         #              "frequency_penalty": 0, "presence_penalty": 0, "stop": ["\n"]}
-        prompt_template = "templates_v1/generate_hourly_schedule_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/generate_hourly_schedule_v1.txt"
         prompt_input = create_prompt_input(persona,
                                            curr_hour_str,
                                            p_f_ds_hourly_org,
@@ -220,11 +228,11 @@ class LLMManager:
         output = PromptStructure.generate_response(prompt, llm_param, 5, fail_safe,
                                         __func_validate, __func_clean_up)
 
-        # if debug or verbose:
-        #     print_run_prompts(prompt_template, persona, gpt_param,
-        #                       prompt_input, prompt, output)
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, llm_param,
+                              prompt_input, prompt, output)
 
-        return output
+        return output, [output, prompt, llm_param, prompt_input, fail_safe]
 
     # Before Debug
     @staticmethod
@@ -305,6 +313,8 @@ class LLMManager:
             for count, i in enumerate(temp):
                 if count != 0:
                     _cr += [" ".join([j.strip() for j in i.split(" ")][3:])]
+                    if _cr[-1] == "":
+                        _cr = _cr[:-1]
                 else:
                     _cr += [i]
             for count, i in enumerate(_cr):
@@ -353,10 +363,10 @@ class LLMManager:
         def __func_validate(gpt_response, prompt=""):
             # TODO -- this sometimes generates error
             try:
-                __func_clean_up(gpt_response)
+                __func_clean_up(gpt_response, prompt)
             except:
-                pass
-                # return False
+                print("run_prompt_task_decomp __func_validate fail")
+                return False
             return gpt_response
 
         def get_fail_safe():
@@ -366,7 +376,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 1000,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/task_decomp_v3.txt"
+        prompt_template = "persona/prompt_template/templates_v1/task_decomp_v3.txt"
         prompt_input = create_prompt_input(persona, task, duration)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         fail_safe = get_fail_safe()
@@ -428,7 +438,7 @@ class LLMManager:
                                      test_input=None,
                                      verbose=False):
         def create_prompt_input(action_description, persona, test_input=None):
-            act_world = world_name # TODO : 임시 world_name
+            act_world = f"{persona.scratch.curr_address['world']}" # TODO : 임시 world_name
 
             prompt_input = []
 
@@ -480,10 +490,13 @@ class LLMManager:
 
         def __func_validate(gpt_response, prompt=""):
             if len(gpt_response.strip()) < 1:
+                print("run_prompt_action_sector __func_validate fail")
                 return False
             if "}" not in gpt_response:
+                print("run_prompt_action_sector __func_validate fail")
                 return False
             if "," in gpt_response:
+                print("run_prompt_action_sector __func_validate fail")
                 return False
             return True
 
@@ -522,7 +535,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.01,
                      "top_p": 1}
-        prompt_template = "templates_v1/action_location_sector_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/action_location_sector_v1.txt"
         prompt_input = create_prompt_input(action_description, persona)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
 
@@ -600,10 +613,13 @@ class LLMManager:
 
         def __func_validate(gpt_response, prompt=""):
             if len(gpt_response.strip()) < 1:
+                print("run_prompt_action_arena __func_validate fail")
                 return False
             if "}" not in gpt_response:
+                print("run_prompt_action_arena __func_validate fail")
                 return False
             if "," in gpt_response:
+                print("run_prompt_action_arena __func_validate fail")
                 return False
             return True
 
@@ -615,7 +631,7 @@ class LLMManager:
                      "temperature": 0.1,
                      "top_p": 1,
                      }
-        prompt_template = "templates_v1/action_location_object_vMar11.txt"
+        prompt_template = "persona/prompt_template/templates_v1/action_location_object_vMar11.txt"
         prompt_input = create_prompt_input(action_description, persona, act_world, act_sector)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
 
@@ -655,6 +671,7 @@ class LLMManager:
 
         def __func_validate(gpt_response, prompt=""):
             if len(gpt_response.strip()) < 1:
+                print("run_prompt_action_game_object __func_validate fail")
                 return False
             return True
 
@@ -669,7 +686,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/action_object_v2.txt"
+        prompt_template = "persona/prompt_template/templates_v1/action_object_v2.txt"
         prompt_input = create_prompt_input(action_description,
                                            persona,
                                            temp_address,
@@ -689,6 +706,66 @@ class LLMManager:
                               prompt_input, prompt, output)
 
         return output, [output, prompt, gpt_param, prompt_input, fail_safe]
+
+
+    @staticmethod
+    def run_prompt_pronunciatio(action_description, persona, verbose=False):
+        def create_prompt_input(action_description):
+            if "(" in action_description:
+                action_description = action_description.split("(")[-1].split(")")[0]
+            prompt_input = [action_description]
+            return prompt_input
+
+        def __func_clean_up(gpt_response, prompt=""):
+            cr = gpt_response.strip()
+            if len(cr) > 3:
+                cr = cr[:3]
+            return cr
+
+        def __func_validate(gpt_response, prompt=""):
+            try:
+                __func_clean_up(gpt_response, prompt="")
+                if len(gpt_response) == 0:
+                    print("run_prompt_pronunciatio __func_validate fail")
+                    return False
+            except:
+                return False
+            return True
+
+        def get_fail_safe():
+            fs = "😋"
+            return fs
+
+        # ChatGPT Plugin ===========================================================
+        def __chat_func_clean_up(gpt_response, prompt=""):  ############
+            cr = gpt_response.strip()
+            if len(cr) > 3:
+                cr = cr[:3]
+            return cr
+
+        def __chat_func_validate(gpt_response, prompt=""):  ############
+            try:
+                __func_clean_up(gpt_response, prompt="")
+                if len(gpt_response) == 0:
+                    return False
+            except:
+                return False
+            return True
+
+        print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 4")  ########
+        gpt_param = {"max_new_tokens": 15,
+                     "temperature": 0.1,
+                     "top_p": 1}
+        prompt_template = "persona/prompt_template/templates_v1/generate_pronunciatio_v1.txt"  ########
+        prompt_input = create_prompt_input(action_description)  ########
+        prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
+        example_output = "🛁🧖‍♀️"  ########
+        special_instruction = "The value for the output must ONLY contain the emojis."  ########
+        fail_safe = get_fail_safe()
+        output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
+                                                __chat_func_validate, __chat_func_clean_up)
+        if output != False:
+            return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
     # def run_gpt_prompt_pronunciatio(action_description, persona, verbose=False):
 
@@ -712,6 +789,7 @@ class LLMManager:
             try:
                 gpt_response = __func_clean_up(gpt_response, prompt="")
                 if len(gpt_response) != 2:
+                    print("run_prompt_event_triple __func_validate fail")
                     return False
             except:
                 return False
@@ -753,7 +831,7 @@ class LLMManager:
 
         gpt_param = {"max_new_tokens": 30,
                      "temperature": 0.1, "top_p": 1}
-        prompt_template = "templates_v1/generate_event_triple_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/generate_event_triple_v1.txt"
         prompt_input = create_prompt_input(action_description, persona)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         fail_safe = get_fail_safe(persona)  ########
@@ -787,6 +865,7 @@ class LLMManager:
             try:
                 gpt_response = __func_clean_up(gpt_response, prompt="")
             except:
+                print("run_prompt_act_obj_desc __func_validate fail")
                 return False
             return True
 
@@ -811,7 +890,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/generate_obj_event_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/generate_obj_event_v1.txt"  ########
         prompt_input = create_prompt_input(act_game_object, act_desp, persona)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = "being fixed"  ########
@@ -871,8 +950,10 @@ class LLMManager:
             try:
                 gpt_response = __func_clean_up(gpt_response, prompt="")
                 if len(gpt_response) != 2:
+                    print("run_prompt_act_obj_event_triple __func_validate fail")
                     return False
             except:
+                print("run_prompt_act_obj_event_triple __func_validate fail")
                 return False
             return True
 
@@ -883,7 +964,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 30,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/generate_event_triple_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/generate_event_triple_v1.txt"
         prompt_input = create_prompt_input(act_game_object, act_obj_desc)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         fail_safe = get_fail_safe(act_game_object)
@@ -980,17 +1061,21 @@ class LLMManager:
                 for act, dur in gpt_response:
                     dur_sum += dur
                     if str(type(act)) != "<class 'str'>":
+                        print("run_prompt_new_decomp_schedule __func_validate fail")
                         return False
                     if str(type(dur)) != "<class 'int'>":
+                        print("run_prompt_new_decomp_schedule __func_validate fail")
                         return False
                 x = prompt.split("\n")[0].split("originally planned schedule from")[-1].strip()[:-1]
                 x = [datetime.datetime.strptime(i.strip(), "%H:%M %p") for i in x.split(" to ")]
                 delta_min = int((x[1] - x[0]).total_seconds() / 60)
 
                 if int(dur_sum) != int(delta_min):
+                    print("run_prompt_new_decomp_schedule __func_validate fail")
                     return False
 
             except:
+                print("run_prompt_new_decomp_schedule __func_validate fail")
                 return False
             return True
 
@@ -1023,7 +1108,7 @@ class LLMManager:
         gpt_param = {"max_new_token": 1000,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/new_decomp_schedule_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/new_decomp_schedule_v1.txt"
         prompt_input = create_prompt_input(persona,
                                            main_act_dur,
                                            truncated_act_dur,
@@ -1112,23 +1197,36 @@ class LLMManager:
 
         def __func_validate(gpt_response, prompt=""):
             try:
-                if gpt_response.split("Answer in yes or no:")[-1].strip().lower() in ["yes", "no"]:
-                    return True
-                return False
+                __func_clean_up(gpt_response)
+                return True
+                # if gpt_response.split('Answer in "yes" or "no":')[-1].strip().lower() in ["yes", "no"]:
+                #     return True
+                # elif gpt_response.split('Answer:')[-1].strip().lower() in ["yes", "no"]:
+                #     return True
+                # print("run_prompt_decide_to_talk __func_validate fail")
+                # return False
             except:
+                print("run_prompt_decide_to_talk __func_validate fail")
                 return False
 
         def __func_clean_up(gpt_response, prompt=""):
-            return gpt_response.split("Answer in yes or no:")[-1].strip().lower()
+            low_reponse = gpt_response.lower()
+            if "yes" in low_reponse:
+                return 'yes'
+            elif "no" in low_reponse:
+                return 'no'
+            # if "Answer:" in gpt_response:
+            #         return gpt_response.split("Answer:")[-1].strip().lower()
+            # return gpt_response.split("Answer in yes or no:")[-1].strip().lower()
 
         def get_fail_safe():
             fs = "yes"
             return fs
 
-        gpt_param = {"max_new_tokens": 20,
+        gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/decide_to_talk_v2.txt"
+        prompt_template = "persona/prompt_template/templates_v1/decide_to_talk_v2.txt"
         prompt_input = create_prompt_input(persona, target_persona, retrieved,
                                            test_input)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
@@ -1210,8 +1308,10 @@ class LLMManager:
             try:
                 if gpt_response.split("Answer: Option")[-1].strip().lower() in ["3", "2", "1"]:
                     return True
+                print("run_prompt_decide_to_react __func_validate fail")
                 return False
             except:
+                print("run_prompt_decide_to_react __func_validate fail")
                 return False
 
         def __func_clean_up(gpt_response, prompt=""):
@@ -1224,7 +1324,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 20,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/decide_to_react_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/decide_to_react_v1.txt"
         prompt_input = create_prompt_input(persona, target_persona, retrieved,
                                            test_input)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
@@ -1260,6 +1360,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_summarize_conversation __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1275,13 +1376,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_summarize_conversation __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 11")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/summarize_conversation_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/summarize_conversation_v1.txt"  ########
         prompt_input = create_prompt_input(conversation, test_input)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = "conversing about what to eat for lunch"  ########
@@ -1320,6 +1422,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_event_poignancy __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1335,13 +1438,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_event_poignancy __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 7")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/poignancy_event_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/poignancy_event_v1.txt"  ########
         prompt_input = create_prompt_input(persona, event_description)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = "5"  ########
@@ -1373,6 +1477,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_chat_poignancy __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1388,13 +1493,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_chat_poignancy __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 9")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/poignancy_chat_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/poignancy_chat_v1.txt"  ########
         prompt_input = create_prompt_input(persona, event_description)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = "5"  ########
@@ -1428,6 +1534,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_focal_pt __func_validate fail")
                 return False
 
         def get_fail_safe(n):
@@ -1443,13 +1550,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_focal_pt __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 12")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/generate_focal_pt_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/generate_focal_pt_v1.txt"  ########
         prompt_input = create_prompt_input(persona, statements, n)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = '["What should Jane do for lunch", "Does Jane like strawberry", "Who is Jane"]'  ########
@@ -1489,6 +1597,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_insight_and_guidance __func_validate fail")
                 return False
 
         def get_fail_safe(n):
@@ -1529,6 +1638,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_agent_chat_summarize_ideas __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1543,13 +1653,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_agent_chat_summarize_ideas __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 17")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/summarize_chat_ideas_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/summarize_chat_ideas_v1.txt"  ########
         prompt_input = create_prompt_input(persona, target_persona, statements, curr_context)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = 'Jane Doe is working on a project'  ########
@@ -1581,6 +1692,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_agent_chat_summarize_relationship __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1595,13 +1707,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_agent_chat_summarize_relationship __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 18")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/summarize_chat_relationship_v2.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/summarize_chat_relationship_v2.txt"  ########
         prompt_input = create_prompt_input(persona, target_persona, statements)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = 'Jane Doe is working on a project'  ########
@@ -1684,6 +1797,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_agent_chat __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1706,7 +1820,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/agent_chat_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/agent_chat_v1.txt"  ########
         prompt_input = create_prompt_input(persona, target_persona, curr_context, init_summ_idea,
                                            target_summ_idea)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
@@ -1735,6 +1849,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_summarize_ideas __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1749,13 +1864,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_summarize_ideas __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 16")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/summarize_ideas_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/summarize_ideas_v1.txt"  ########
         prompt_input = create_prompt_input(persona, statements, question)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = 'Jane Doe is working on a project'  ########
@@ -1789,6 +1905,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_generate_next_convo_line __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1824,7 +1941,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 250,
                      "temperature": 1,
                      "top_p": 1}
-        prompt_template = "templates_v1/generate_next_convo_line_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/generate_next_convo_line_v1.txt"
         prompt_input = create_prompt_input(persona, interlocutor_desc, prev_convo, retrieved_summary)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
 
@@ -1853,6 +1970,8 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_generate_whisper_inner_thought __func_validate fail")
+
                 return False
 
         def get_fail_safe():
@@ -1861,7 +1980,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 50,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/whisper_inner_thought_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/whisper_inner_thought_v1.txt"
         prompt_input = create_prompt_input(persona, whisper)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
 
@@ -1890,6 +2009,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_planning_thought_on_convo __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1898,7 +2018,7 @@ class LLMManager:
         gpt_param = {"max_new_tokens": 50,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/planning_thought_on_convo_v1.txt"
+        prompt_template = "persona/prompt_template/templates_v1/planning_thought_on_convo_v1.txt"
         prompt_input = create_prompt_input(persona, all_utt)
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
 
@@ -1927,6 +2047,7 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_memo_on_convo __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -1941,13 +2062,14 @@ class LLMManager:
                 __func_clean_up(gpt_response, prompt)
                 return True
             except:
+                print("run_prompt_memo_on_convo __func_validate fail")
                 return False
 
         print("asdhfapsh8p9hfaiafdsi;ldfj as DEBUG 15")  ########
         gpt_param = {"max_new_tokens": 15,
                      "temperature": 0.1,
                      "top_p": 1}
-        prompt_template = "templates_v1/memo_on_convo_v1.txt"  ########
+        prompt_template = "persona/prompt_template/templates_v1/memo_on_convo_v1.txt"  ########
         prompt_input = create_prompt_input(persona, all_utt)  ########
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         example_output = 'Jane Doe was interesting to talk to.'  ########
@@ -2040,9 +2162,9 @@ class LLMManager:
 
     # Before Debug
     @staticmethod
-    def run_generate_iterative_chat_utt(maze, init_persona, target_persona, retrieved, curr_context, curr_chat,
+    def run_generate_iterative_chat_utt(init_persona, target_persona, retrieved, curr_context, curr_chat,
                                             test_input=None, verbose=False):
-        def create_prompt_input(maze, init_persona, target_persona, retrieved, curr_context, curr_chat,
+        def create_prompt_input(init_persona, target_persona, retrieved, curr_context, curr_chat,
                                 test_input=None):
             persona = init_persona
             prev_convo_insert = "\n"
@@ -2059,8 +2181,8 @@ class LLMManager:
                     prev_convo_insert = ""
             print(prev_convo_insert)
 
-            curr_sector = f"{maze.access_tile(persona.scratch.curr_tile)['sector']}"
-            curr_arena = f"{maze.access_tile(persona.scratch.curr_tile)['arena']}"
+            curr_sector = f"{persona.scratch.curr_address['sector']}"
+            curr_arena = f"{persona.scratch.curr_address['arena']}"
             curr_location = f"{curr_arena} in {curr_sector}"
 
             retrieved_str = ""
@@ -2103,12 +2225,13 @@ class LLMManager:
                 # print ("debug 1")
                 # print (gpt_response)
                 # print ("debug 2")
-
+                __chat_func_clean_up(gpt_response, prompt)
                 print(LLMManager.extract_first_json_dict(gpt_response))
                 # print ("debug 3")
 
                 return True
             except:
+                print("run_generate_iterative_chat_utt __func_validate fail")
                 return False
 
         def get_fail_safe():
@@ -2118,8 +2241,8 @@ class LLMManager:
             return cleaned_dict
 
         print("11")
-        prompt_template = "templates_v1/iterative_convo_v1.txt"
-        prompt_input = create_prompt_input(maze, init_persona, target_persona, retrieved, curr_context, curr_chat)
+        prompt_template = "persona/prompt_template/templates_v1/iterative_convo_v1.txt"
+        prompt_input = create_prompt_input(init_persona, target_persona, retrieved, curr_context, curr_chat)
         print("22")
         prompt = PromptStructure.generate_prompt(prompt_input, prompt_template)
         print(prompt)
@@ -2130,7 +2253,9 @@ class LLMManager:
 
         output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
                                                     __chat_func_validate, __chat_func_clean_up)
-        print(output)
+        if debug or verbose:
+            print_run_prompts(prompt_template, init_persona, gpt_param,
+                              prompt_input, prompt, output)
 
 
         return output, [output, prompt, gpt_param, prompt_input, fail_safe]
@@ -2141,10 +2266,14 @@ if __name__ == "__main__":
     print(sys.path)
     from persona.persona import Persona
     persona_name = "Isabella Rodriguez"
+    persona_name2 = "Maria Lopez"
+
     persona_folder = f"../../environment/persona/{persona_name}"
+    persona_folder2 = f"../../environment/persona/{persona_name2}"
 
     PromptStructure.load_llama_7B_chat_hf(model_path)
     Isabella = Persona(persona_name, persona_folder)
+    Maria = Persona(persona_name2, persona_folder2)
 
     # test1
     # wake_up_hour = LLMManager.run_prompt_wake_up_hour(Isabella)
@@ -2203,9 +2332,26 @@ if __name__ == "__main__":
     # print(act_obj_desc)
 
     # test run_prompt_event_poignancy
-    poignancy = LLMManager.run_prompt_event_poignancy(Isabella, "Isabella Rodriguez is organizing the cafe menu")
-    print(poignancy)
+    # poignancy = LLMManager.run_prompt_event_poignancy(Isabella, "Isabella Rodriguez is organizing the cafe menu")
+    # print(poignancy)
+    #
+    # # test run_prompt_event_poignancy
+    # poignancy = LLMManager.run_prompt_chat_poignancy(Isabella, "Isabella Rodriguez is organizing the cafe menu")
+    # print(poignancy)
 
-    # test run_prompt_event_poignancy
-    poignancy = LLMManager.run_prompt_chat_poignancy(Isabella, "Isabella Rodriguez is organizing the cafe menu")
-    print(poignancy)
+    output = LLMManager.run_prompt_decide_to_talk(Isabella, Maria,None,'''Task -- given context, determine whether the subject will initiate a conversation with another. 
+Format: 
+Context: []
+Question: []
+Reasoning: []
+Answer in "yes" or "no": []
+---
+Context: Klaus Mueller was taking a break. Maria Lopez was conversing about two friends named Klaus Mueller and Maria Lopez discussing their morning plans and progress on a research paper before Maria heads off to college.. Isabella Rodriguez was conversation about Isabella inviting Klaus to her Valentine's Day party at Hobbs Cafe on February 14th, 2023 from 5pm to 7pm.. Klaus Mueller was conversing about two friends named Klaus Mueller and Maria Lopez discussing their morning plans and progress on a research paper before Maria heads off to college.. Klaus Mueller was outlining the paper. Klaus Mueller was organizing his notes. 
+ 
+Right now, it is February 13, 2023, 12:02:40 PM. Maria Lopez and Isabella Rodriguez last chatted at  about . 
+Maria Lopez is already preparing her lunch 
+Isabella Rodriguez is already closing the cafe 
+
+Question: Would Maria Lopez initiate a conversation with Isabella Rodriguez? 
+
+Reasoning: Let's think step by step.")''')

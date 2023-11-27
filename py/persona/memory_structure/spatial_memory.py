@@ -8,9 +8,11 @@ class SpatialMemory:
         self.spatial_tree = dict() #spactial dict
         if check_if_file_exists(f_saved):
             self.spatial_tree = json.load(open(f_saved))
-            print("done")
+
 
     def save(self, out_json):
+        with open(out_json, "w") as outfile:
+            json.dump(self.spatial_tree, outfile)
         pass
 
     def print_tree(self):
@@ -78,9 +80,9 @@ class SpatialMemory:
             return ""
 
         try:
-            x = ", ".join(list(self.spatial_tree[curr_world][curr_sector][curr_arena]))
+            x = ", ".join(item["subject"] for item in self.spatial_tree[curr_world][curr_sector][curr_arena])
         except:
-            x = ", ".join(list(self.spatial_tree[curr_world][curr_sector][curr_arena.lower()]))
+            x = ", ".join(item["subject"] for item in self.spatial_tree[curr_world][curr_sector][curr_arena.lower()])
         return x
 
 if __name__ == '__main__':

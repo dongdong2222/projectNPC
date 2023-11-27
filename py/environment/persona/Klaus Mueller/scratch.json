@@ -3,10 +3,12 @@
   "att_bandwidth": 8,
   "retention": 8,
   "curr_time": "February 13, 2023, 12:02:40",
-  "curr_tile": [
-    74,
-    23
-  ],
+  "curr_address": {
+     "world": "the Ville",
+     "sector": "The Rose and Crown Pub",
+     "arena": "pub",
+     "object": "refrigerator"
+  },
   "daily_plan_req": "Klaus Mueller goes to the library at Oak Hill College early in the morning, spends his days writing, and eats at Hobbs Cafe.",
   "name": "Klaus Mueller",
   "first_name": "Klaus",
@@ -349,7 +351,7 @@
   "chat": null,
   "chatting_with_buffer": {
     "Maria Lopez": 51,
-    "Isabella Rodriguez": 573
+    "Isabella Rodriguez": 0
   },
   "chatting_end_time": null,
   "act_path_set": true,

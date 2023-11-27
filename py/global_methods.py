@@ -17,3 +17,13 @@ def check_if_file_exists(curr_file):
 def remove_bracket(str_with_bracket):
   if "(" in str_with_bracket:
     return str_with_bracket.split("(")[-1][:-1]
+
+
+def convert_address_to_dict(ad_str):
+  ad_strs = ad_str.split(':')
+  ad_dict = {}
+  ad_dict['world'] = ad_strs[0]
+  ad_dict['sector'] = ad_strs[1]
+  ad_dict['arena'] = ad_strs[2]
+  ad_dict['object'] = ad_strs[3]
+  return ad_dict

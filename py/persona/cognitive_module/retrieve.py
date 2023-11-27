@@ -15,7 +15,7 @@ class Retrieve:
             retrieved[event.description] = dict()
             retrieved[event.description]["curr_event"] = event
 
-            relevant_events = persona.a_mem.retrieve_relevant_event(
+            relevant_events = persona.a_mem.retrieve_relevant_events(
                 event.subject, event.predicate, event.object)
             retrieved[event.description]["events"] = list(relevant_events)
 
@@ -79,11 +79,11 @@ class Retrieve:
                                    + persona.scratch.importance_w * importance_out[key] * gw[2])
 
             master_out = top_highest_x_values(master_out, len(master_out.keys()))
-            for key, val in master_out.items():
-                print(persona.a_mem.id_to_node[key].embedding_key, val)
-                print(persona.scratch.recency_w * recency_out[key] * 1,
-                      persona.scratch.relevance_w * relevance_out[key] * 1,
-                      persona.scratch.importance_w * importance_out[key] * 1)
+            # for key, val in master_out.items():
+            #     print(persona.a_mem.id_to_node[key].embedding_key, val)
+            #     print(persona.scratch.recency_w * recency_out[key] * 1,
+            #           persona.scratch.relevance_w * relevance_out[key] * 1,
+            #           persona.scratch.importance_w * importance_out[key] * 1)
 
             # Extracting the highest x values.
             # <master_out> has the key of node.id and value of float. Once we get the

@@ -6,6 +6,8 @@ from persona.memory_structure.scratch import Scratch
 from persona.cognitive_module.perceive import Perceive
 from persona.cognitive_module.retrieve import Retrieve
 from persona.cognitive_module.plan import Plan
+from persona.cognitive_module.reflect import Reflect
+from persona.cognitive_module.execute import Execute
 
 class Persona:
     def __init__(self, name, f_memory_saved=False):
@@ -19,17 +21,16 @@ class Persona:
         self.s_mem.save(f"{save_folder}/spatial_memory.json")
         self.a_mem.save(f"{save_folder}/associative_memory")
         self.scratch.save(f"{save_folder}/scratch.json")
-    def receive_event(self, event, personas):
-        # 임시 변수 : new_day : False, First day, New day
-        new_day = "First_day"
+    def receive_event(self, event, personas, day_type):
+        # 임시 변수 : day_type : False, First day, New day
 
 
         # event 발생 시 호출
         perceived = self.perceive(event)
         retrieved = self.retrieve(perceived)
-        plan = self.plan(personas, new_day, retrieved)
-        # TODO : self.reflect()
-        # TODO : return self.execute(plan)
+        plan = self.plan(personas, day_type, retrieved)
+        self.reflect()
+        return self.execute(personas, plan)
 
     def perceive(self, event):
         return Perceive.perceive(self, event)
@@ -50,8 +51,10 @@ class Persona:
     def plan(self, personas, new_day, retrieve):
         return Plan.plan(self, personas, new_day, retrieve)
 
-    def execute(self, plan):
+    def execute(self, personas, plan):
+        return Execute.execute(self, personas, plan)
         pass
 
     def reflect(self):
+        Reflect.reflect(self)
         pass
