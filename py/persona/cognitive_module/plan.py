@@ -80,8 +80,8 @@ def _plan_daily_schedule(persona, new_day):
         persona.scratch.daily_req = persona.scratch.daily_req
 
     #part 2 : update scratch.full_daily_schedule, scratch.full_daily_schedule_hourly_org
-    persona.scratch.full_daily_schedule = generate_hourly_schedule(persona, wake_up_hour)
-    persona.scratch.full_daily_schedule_hourly_org = (persona.scratch.full_daily_schedule[:])
+    persona.scratch.f_daily_schedule = generate_hourly_schedule(persona, wake_up_hour)
+    persona.scratch.f_daily_schedule_hourly_org = (persona.scratch.f_daily_schedule[:])
 
     #part 3 : add plan to the memory
     thought = f"This is {persona.scratch.name}'s plan for {persona.scratch.curr_time.strftime('%A %B %d')}:"
@@ -583,6 +583,10 @@ def _determine_action(persona):
     # chunk actions.
     # Importantly, we try to decompose at least two hours worth of schedule at
     # any given point.
+    # 추가 함 문제 시 삭제!!
+    # persona.scratch.act_address = ""
+
+
     curr_index = persona.scratch.get_f_daily_schedule_index()
     curr_index_60 = persona.scratch.get_f_daily_schedule_index(advance=60)
 

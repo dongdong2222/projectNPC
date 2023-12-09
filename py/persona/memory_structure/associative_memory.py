@@ -21,7 +21,7 @@ class AssociativeMemory:
         self.kw_strength_event = dict()
         self.kw_strength_thought = dict()
 
-        self.embeddings = json.load(open(f_saved + "/embeddings.json"))
+        self.embeddings = json.load(open(f"{f_saved}/embeddings.json"))
 
         #load data in nodes.json
         nodes_load = json.load(open(f_saved + "/nodes.json"))
@@ -30,7 +30,7 @@ class AssociativeMemory:
             node_details = nodes_load[node_id]
 
             node_count = node_details["node_count"]
-            type_count = node_details["type_count"]
+            # type_count = node_details["type_count"]
             node_type = node_details["type"]
             depth = node_details["depth"]
 
@@ -98,7 +98,17 @@ class AssociativeMemory:
 
         with open(out_json+"/nodes.json", "w") as outfile:
             json.dump(out, outfile)
+        r = dict()
+        r["kw_strength_event"] = self.kw_strength_event
+        r["kw_strength_thought"] = self.kw_strength_thought
+        with open(out_json + "/kw_strength.json", "w") as outfile:
+            json.dump(r, outfile)
 
+        d = dict()
+        for key, embedd in self.embeddings.items():
+            d[key] = embedd.tolist()
+        with open(out_json + "/embeddings.json", "w") as outfile:
+            json.dump(d, outfile)
 
     def add_event(self, created, expiration, s, p, o,
                       description, keywords, poignancy,
@@ -143,6 +153,21 @@ class AssociativeMemory:
 
         self.embeddings[embedding_pair[0]] = embedding_pair[1]
 
+        return node
+
+    def make_node(self, created, expiration, s, p, o,
+                      description, keywords, poignancy,
+                      embedding_pair, filling):
+        node_count = len(self.id_to_node.keys())
+        type_count = len(self.seq_event)
+        node_type = "event"
+        node_id = f"node_{str(node_count)}"
+        depth = 0
+        node = MemoryNode(node_id, node_count, type_count, node_type, depth,
+                           created, expiration,
+                           s, p, o,
+                           description, embedding_pair[0],
+                           poignancy, keywords, filling)
         return node
 
     def add_chat(self, created, expiration, s, p, o,

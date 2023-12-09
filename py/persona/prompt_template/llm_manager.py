@@ -68,6 +68,11 @@ class LLMManager:
 
         output = PromptStructure.generate_response(prompt, llm_param, 5, fail_safe,
                                                    __func_validate, __func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, llm_param,
+                              prompt_input, prompt, output)
+
         return output
 
     @staticmethod
@@ -91,6 +96,8 @@ class LLMManager:
                     i = i[:-1].strip()
                     if i[-1] == "." or i[-1] == ",":
                         cr += [i[:-1].strip()]
+                    else:
+                        cr += [i]
             return cr
 
         def __func_validate(llm_response, prompt=""):
@@ -121,6 +128,10 @@ class LLMManager:
         output = PromptStructure.generate_response(prompt, llm_param, 5, fail_safe,
                                                    __func_validate, __func_clean_up)
         output = ([f"wake up and complete the morning routine at {wake_up_hour}:00 am"] + output)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, llm_param,
+                              prompt_input, prompt, output)
 
         return output
 
@@ -307,7 +318,8 @@ class LLMManager:
             print("-==- -==- -==- ")
             print(gpt_response)
             # TODO SOMETHING HERE sometimes fails... See screenshot
-            temp = [i.strip() for i in gpt_response.split("\n")]
+            temp = gpt_response.split("---")[0]
+            temp = [i.strip() for i in temp.split("\n")]
             _cr = []
             cr = []
             for count, i in enumerate(temp):
@@ -373,7 +385,7 @@ class LLMManager:
             fs = ["asleep"]
             return fs
 
-        gpt_param = {"max_new_tokens": 1000,
+        gpt_param = {"max_new_tokens": 400,
                      "temperature": 0.1,
                      "top_p": 1}
         prompt_template = "persona/prompt_template/templates_v1/task_decomp_v3.txt"
@@ -764,6 +776,11 @@ class LLMManager:
         fail_safe = get_fail_safe()
         output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
                                                 __chat_func_validate, __chat_func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+
         if output != False:
             return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
@@ -1453,6 +1470,11 @@ class LLMManager:
         fail_safe = get_fail_safe()  ########
         output = PromptStructure.generate_response(prompt, gpt_param, 5, fail_safe,
                                                 __chat_func_validate, __chat_func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+
         if output != False:
             return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
@@ -1829,6 +1851,10 @@ class LLMManager:
         fail_safe = get_fail_safe()  ########
         output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
                                                 __chat_func_validate, __chat_func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
         # print ("HERE END JULY 23 -- ----- ") ########
         if output != False:
             return output, [output, prompt, gpt_param, prompt_input, fail_safe]
@@ -1879,6 +1905,11 @@ class LLMManager:
         fail_safe = get_fail_safe()  ########
         output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
                                                 __chat_func_validate, __chat_func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+
         if output != False:
             return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
@@ -2077,6 +2108,11 @@ class LLMManager:
         fail_safe = get_fail_safe()  ########
         output = PromptStructure.generate_response(prompt, gpt_param, 3, fail_safe,
                                                 __chat_func_validate, __chat_func_clean_up)
+
+        if debug or verbose:
+            print_run_prompts(prompt_template, persona, gpt_param,
+                              prompt_input, prompt, output)
+
         if output != False:
             return output, [output, prompt, gpt_param, prompt_input, fail_safe]
         # ChatGPT Plugin ===========================================================
@@ -2271,7 +2307,7 @@ if __name__ == "__main__":
     persona_folder = f"../../environment/persona/{persona_name}"
     persona_folder2 = f"../../environment/persona/{persona_name2}"
 
-    PromptStructure.load_llama_7B_chat_hf(model_path)
+    PromptStructure.load_llama_7B_chat_hf_and_LoRA(model_path)
     Isabella = Persona(persona_name, persona_folder)
     Maria = Persona(persona_name2, persona_folder2)
 

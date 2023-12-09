@@ -137,6 +137,29 @@ class Converse:
 
       return curr_chat
 
+    #add dongju TODO : memory stream에 저장하기, stop 구현하기
+    @staticmethod
+    def chat_with_player(player, target_persona, last_chat_list):
+      focal_points = [f"{player.scratch.name}"]
+      retrieved = Retrieve.new_retrieve(target_persona, focal_points, 50)
+      relationship = Converse.generate_summarize_agent_relationship(target_persona, player, retrieved)
+      print ("-------- relationshopadsjfhkalsdjf", relationship)
+      last_chat = ""
+      for i in last_chat_list[-4:]:
+        last_chat += ": ".join(i) + "\n"
+      if last_chat:
+        focal_points = [f"{relationship}",
+                        f"{player.scratch.name} is {player.scratch.act_description}",
+                        last_chat]
+      else:
+        focal_points = [f"{relationship}",
+                        f"{player.scratch.name} is {player.scratch.act_description}"]
+      retrieved = Retrieve.new_retrieve(target_persona, focal_points, 15)
+      utt, end = Converse.generate_one_utterance(target_persona, player, retrieved, last_chat_list)
+
+      return [target_persona.scratch.name, utt]
+
+
     @staticmethod
     def generate_summarize_ideas(persona, nodes, question):
       statements = ""

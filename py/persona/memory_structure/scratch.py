@@ -56,6 +56,9 @@ class Scratch:
         self.importance_ele_n = 0
         self.thought_count = 5
 
+
+        self.addition_plan = None
+
         # PERSONA PLANNING
         # <daily_req> is a list of various goals the persona is aiming to achieve
         # today.
@@ -132,8 +135,8 @@ class Scratch:
         # persona is chatting with. None if it does not exist.
         self.chatting_with = None
         # <chat> is a list of list that saves a conversation between two personas.
-        # It comes in the form of: [["Dolores Murphy", "Hi"],
-        #                           ["Maeve Jenson", "Hi"] ...]
+        # It comes in the form of:
+
         self.chat = None
         # <chatting_with_buffer>
         # e.g., ["Dolores Murphy"] = self.vision_r
@@ -264,13 +267,17 @@ class Scratch:
         scratch["f_daily_schedule_hourly_org"] = self.f_daily_schedule_hourly_org
 
         scratch["act_address"] = self.act_address
-        scratch["act_start_time"] = (self.act_start_time
-                                     .strftime("%B %d, %Y, %H:%M:%S"))
+        if self.act_start_time:
+            scratch["act_start_time"] = (self.act_start_time
+                                        .strftime("%B %d, %Y, %H:%M:%S"))
         scratch["act_duration"] = self.act_duration
         scratch["act_description"] = self.act_description
+        scratch["act_pronunciatio"] = self.act_pronunciatio
         scratch["act_event"] = self.act_event
 
+
         scratch["act_obj_description"] = self.act_obj_description
+        scratch["act_obj_pronunciatio"] = self.act_obj_pronunciatio
         scratch["act_obj_event"] = self.act_obj_event
 
         scratch["chatting_with"] = self.chatting_with
@@ -513,7 +520,9 @@ class Scratch:
                 x = (x + datetime.timedelta(minutes=1))
             end_time = (x + datetime.timedelta(minutes=self.act_duration))
 
-        if end_time.strftime("%H:%M:%S") == self.curr_time.strftime("%H:%M:%S"):
+        # if end_time.strftime("%H:%M:%S") == self.curr_time.strftime("%H:%M:%S"):
+        #     return True
+        if end_time <= self.curr_time:
             return True
         return False
 

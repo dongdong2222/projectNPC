@@ -1,9 +1,9 @@
-
 import torch
 import traceback
 
-#from utils import *
+# from utils import *
 from transformers import LlamaForCausalLM, LlamaTokenizer
+# from peft import PeftConfig
 from sentence_transformers import SentenceTransformer
 
 
@@ -11,6 +11,12 @@ class PromptStructure:
     model = None
     tokenizer = None
     embedding_model = None
+
+
+    task_type_paths = {'Summary': "../../LoRASummary", 'Scoring': "../../LoRAScoring"}
+    curr_task_type = None
+    # peft_config = PeftConfig.from_pretrained(task_types[task_type])
+    # model.add_adapter(peft_config, adapter_name="adapter_1")
 
     @staticmethod
     def generate_prompt(curr_input, prompt_lib_file):
@@ -31,7 +37,6 @@ class PromptStructure:
             curr_input = [curr_input]
         curr_input = [str(i) for i in curr_input]
 
-
         f = open(prompt_lib_file, "r")
         prompt = f.read()
         f.close()
@@ -40,6 +45,7 @@ class PromptStructure:
         if "<commentblockmarker>###</commentblockmarker>" in prompt:
             prompt = prompt.split("<commentblockmarker>###</commentblockmarker>")[1]
         return prompt.strip()
+
     @classmethod
     def generate_response(cls,
                           prompt,
@@ -53,7 +59,7 @@ class PromptStructure:
             print(prompt)
 
         for i in range(repeat):
-            curr_llm_response = cls.LLama_request(prompt, llm_parameter)
+            curr_llm_response = cls.Llama_request(prompt, llm_parameter)
             if func_validate(curr_llm_response, prompt=prompt):
                 return func_clean_up(curr_llm_response, prompt=prompt)
             if verbose:
@@ -70,14 +76,30 @@ class PromptStructure:
         embeddings = cls.embedding_model.encode(text)
         return embeddings
 
+    def replace_LoRA(cls, task_type):
+        # if task_type not in list(task_types.keys()):
+        #     return
+        # peft_config = PeftConfig.from_pretrained(task_types[task_type])  # 무작위 가중치로 시작
+        # model.add_adapter(peft_config, adapter_name=task_type)
+        if task_type is not cls.model.active_adapters()[0]:
+            cls.model.set_adapter(task_type)
+            # cls.curr_task_type = task_type
+
     # ---------------------------------------------
+
+
     @classmethod
-    def load_llama_7B_chat_hf(cls, path):
+    def load_llama_7B_chat_hf_and_LoRA(cls, path):
         cls.tokenizer = LlamaTokenizer.from_pretrained(path)
         cls.model = LlamaForCausalLM.from_pretrained(path, device_map="auto", torch_dtype=torch.float16)
+        # cls.model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config, device_map={"": 0})
+        cls.model.load_adapter(cls.task_type_paths["Summary"], adapter_name="Summary")
+        cls.model.load_adapter(cls.task_type_paths["Scoring"], adapter_name="Scoring")
+        # print(model.active_adapters())
+        # 어떤 lora가 활성화 되어 있는지 알려주는 함수
         cls.tokenizer.add_special_tokens(
             {
-                "pad_token" : "<PAD>",
+                "pad_token": "<PAD>",
             }
         )
         cls.model.resize_token_embeddings(cls.model.config.vocab_size + 1)
@@ -88,7 +110,7 @@ class PromptStructure:
         cls.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
     @classmethod
-    def LLama_request(cls, prompt, llm_parameter=None):
+    def Llama_request(cls, prompt, llm_parameter=None):
         try:
             with torch.no_grad():
                 input = cls.tokenizer(prompt, padding=True, truncation=True, return_tensors="pt").to("cuda")
@@ -99,7 +121,7 @@ class PromptStructure:
                                                 max_new_tokens=llm_parameter["max_new_tokens"],
                                                 temperature=llm_parameter["temperature"],
                                                 top_p=llm_parameter["top_p"])
-                #TODO : 응답만 반환하도록 바꾸기
+                # TODO : 응답만 반환하도록 바꾸기
                 output_text = cls.tokenizer.decode(output[0], skip_sepcial_tokens=True)
                 response_text = output_text.replace(prompt, "").replace("<s>", "").replace("</s>", "").strip()
                 # print(f"output text : {output_text}")

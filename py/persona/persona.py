@@ -16,6 +16,7 @@ class Persona:
         self.s_mem = SpatialMemory(f"{f_memory_saved}/spatial_memory.json")
         self.a_mem = AssociativeMemory(f"{f_memory_saved}/associative_memory")
         self.scratch = Scratch(f"{f_memory_saved}/scratch.json")
+        self.before_event = {}
 
     def save(self, save_folder):
         self.s_mem.save(f"{save_folder}/spatial_memory.json")
@@ -27,13 +28,14 @@ class Persona:
 
         # event 발생 시 호출
         perceived = self.perceive(event)
+        self.before_event = event
         retrieved = self.retrieve(perceived)
         plan = self.plan(personas, day_type, retrieved)
         self.reflect()
         return self.execute(personas, plan)
 
     def perceive(self, event):
-        return Perceive.perceive(self, event)
+        return Perceive.perceive(self, event, self.before_event)
         pass
 
     def retrieve(self, perceived):

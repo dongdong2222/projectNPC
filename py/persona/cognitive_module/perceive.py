@@ -8,7 +8,7 @@ class Perceive:
     # TODO : 다른 agent들의 chat observation 시 처리
     # TODO : 한번에 여러 event 처리 시 update
     @staticmethod
-    def perceive(persona, event):
+    def perceive(persona, event, before_event):
         subject = event["subject"]
         predicate = event["predicate"]
         object = event["object"]
@@ -36,9 +36,14 @@ class Perceive:
             chat_node_ids = generate_self_chat_node(persona, event, keywords)
 
         #
-        new_memory_nodes += [ persona.a_mem.add_event(persona.scratch.curr_time, None,
-                           subject, predicate, object, description, keywords, event_poignancy,
-                           event_embedding_pair, chat_node_ids)]
+        if before_event == event:
+            new_memory_nodes += [persona.a_mem.make_node(persona.scratch.curr_time, None,
+                               subject, predicate, object, description, keywords, event_poignancy,
+                               event_embedding_pair, chat_node_ids)]
+        else:
+            new_memory_nodes += [ persona.a_mem.add_event(persona.scratch.curr_time, None,
+                               subject, predicate, object, description, keywords, event_poignancy,
+                               event_embedding_pair, chat_node_ids)]
 
         return new_memory_nodes
 

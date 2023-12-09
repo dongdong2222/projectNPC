@@ -6,101 +6,101 @@
           "subject": "blankets",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "blankets is idle"
         },
         {
           "subject": "bed1",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed1 is idle"
         },
         {
           "subject": "bed2",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed2 is idle"
         },
         {
           "subject": "bed3",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed3 is idle"
         },
         {
           "subject": "bed4",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed4 is idle"
         },
         {
           "subject": "monitor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "monitor is idle"
         },
         {
           "subject": "scanner",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "scanner is idle"
         }
       ],
       "Navigation": [
         {
-          "subject": "right chair",
+          "subject": "right_chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "right_chair is idle"
         },
         {
-          "subject": "left chair",
+          "subject": "left_chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "left_chair is idle"
         },
         {
-          "subject": "chair",
+          "subject": "middle_chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "middle_chair is idle"
         },
         {
-          "subject": "center panel",
+          "subject": "center_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "center_panel is idle"
         },
         {
-          "subject": "sub panel",
+          "subject": "sub_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "sub_panel is idle"
         }
       ],
-      "Biology_Lab": [
+      "O2Center": [
         {
-          "subject": "plant tank",
+          "subject": "plant_tank",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "plant_tank is idle"
         },
         {
           "subject": "monitor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "monitor is idle"
         },
         {
           "subject": "labdesk",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "labdesk is idle"
         },
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         }
       ],
       "Room101": [
@@ -108,31 +108,31 @@
           "subject": "bed",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed is idle"
         },
         {
           "subject": "PC",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "PC is idle"
         },
         {
           "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         },
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         }
       ],
       "Room102": [
@@ -140,31 +140,31 @@
           "subject": "bed",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed is idle"
         },
         {
           "subject": "PC",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "PC is idle"
         },
         {
-          "subject": "chair and desk",
+          "subject": "chair_and_desk",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair_and_desk is idle"
         },
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         }
       ],
       "Room103": [
@@ -172,25 +172,25 @@
           "subject": "bed",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed is idle"
         },
         {
           "subject": "table",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "table is idle"
         },
         {
           "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         }
       ],
       "Room104": [
@@ -198,347 +198,304 @@
           "subject": "bed",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "bed is idle"
         },
         {
           "subject": "PC",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "PC is idle"
         },
         {
           "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "fire extinguisher is idle"
+          "description": "fire_extinguisher is idle"
         },
         {
-          "subject": "chair and desk",
+          "subject": "chair_and_desk",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair_and_desk is idle"
         },
         {
           "subject": "radio",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "radio is idle"
         }
       ],
-      "Lower_Engine": [
+      "LowerEngine": [
         {
-          "subject": "engine panel",
+          "subject": "engine_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "engine_panel is idle"
         },
         {
-          "subject": "engine fuel hole",
+          "subject": "engine_fuel_hole",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "engine_fuel_hole is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         },
         {
           "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         },
         {
-          "subject": "power distributor",
+          "subject": "power_distributor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "power_distributor is idle"
         }
       ],
-      "Upper_Engine": [
+      "UpperEngine": [
         {
-          "subject": "engine panel",
+          "subject": "engine_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "engine_panel is idle"
         },
         {
-          "subject": "engine fuel hole",
+          "subject": "engine_fuel_hole",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "engine_fuel_hole is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         },
         {
           "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         },
         {
-          "subject": "power distributor",
+          "subject": "power_distributor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "power_distributor is idle"
         }
       ],
-      "Security_Room": [
+      "Securityroom": [
         {
           "subject": "chair",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "chair is idle"
         },
         {
-          "subject": "triple monitor",
+          "subject": "triple_monitor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "triple_monitor is idle"
         },
         {
           "subject": "server",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "server is idle"
         },
         {
           "subject": "closet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "closet is idle"
         },
         {
-          "subject": "power distributor",
+          "subject": "power_distributor",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "power_distributor is idle"
         }
       ],
-      "Weapon_Room": [
+      "Weaponroom": [
         {
-          "subject": "weapon control seat",
+          "subject": "weapon_control_seat",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "weapon_control_seat is idle"
         }
       ],
-      "Main_Hall": [
+      "Hall": [
         {
-          "subject": "cabinet1",
+          "subject": "cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "cabinet is idle"
         },
         {
-          "subject": "cabinet2",
+          "subject": "server",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "server is idle"
         },
         {
-          "subject": "cabinet3",
+          "subject": "experiment_equipment",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "cabinet4",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "table1",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "table2",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "table3",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "chair1",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "chair2",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "chair3",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
-        },
-        {
-          "subject": "chair4",
-          "predicate": "is",
-          "obj": "idle",
-          "description": "idle"
+          "description": "experiment_equipment is idle"
         }
       ],
       "Lobby": [
         {
-          "subject": "table screen",
+          "subject": "table_screen",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "table_screen is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "fire_extinguisher is idle"
         },
         {
           "subject": "PC",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "PC is idle"
         }
       ],
-      "Power_Control_Room": [
+      "Lightroom": [
         {
-          "subject": "light control panel",
+          "subject": "light_control_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "light_control_panel is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "fire extinguisher is idle"
+          "description": "fire_extinguisher is idle"
         }
       ],
-      "Reactor_Room": [
+      "Reactorroom": [
         {
-          "subject": "reactor controller",
+          "subject": "reactor_controller",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "reactor_controller is idle"
         },
         {
-          "subject": "reactor panel",
+          "subject": "reactor_panel",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "reactor_panel is idle"
         },
         {
-          "subject": "fire extinguisher",
+          "subject": "fire_extinguisher",
           "predicate": "is",
           "obj": "idle",
-          "description": "fire extinguisher is idle"
+          "description": "fire_extinguisher is idle"
         },
         {
-          "subject": "cabinet1",
+          "subject": "right_cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "right_cabinet is idle"
         },
         {
-          "subject": "cabinet2",
+          "subject": "left_cabinet",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "left_cabinet is idle"
         }
       ],
       "Restroom": [
         {
-          "subject": "sink",
+          "subject": "Sink",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "Sink is idle"
         },
         {
-          "subject": "toilet1",
+          "subject": "Toilet-set1",
           "predicate": "is",
           "obj": "idle",
           "description": "Toilet-set1 is idle"
         },
         {
-          "subject": "toilet2",
+          "subject": "Toilet-set2",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "Toilet-set2 is idle"
         },
         {
-          "subject": "toilet3",
+          "subject": "Toilet-set3",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "Toilet-set3 is idle"
         },
         {
-          "subject": "mirror",
+          "subject": "Mirror",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "Mirror is idle"
         }
       ],
       "Bathroom": [
         {
-          "subject": "shower head1",
+          "subject": "shower_head1",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "shower_head1 is idle"
         },
         {
-          "subject": "shower head2",
+          "subject": "shower_head2",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "shower_head2 is idle"
         },
         {
-          "subject": "shower head3",
+          "subject": "shower_head3",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "shower_head3 is idle"
         },
         {
-          "subject": "shower head4",
+          "subject": "shower_head4",
           "predicate": "is",
           "obj": "idle",
-          "description": "idle"
+          "description": "shower_head4 is idle"
         }
-      ]
+      ],
+      "CockpitCorridor": [],
+      "BackCorridor": [],
+      "EngineCorridor": [],
+      "MidshipCorridor": [],
+      "MainCorridor": []
     }
   }
 }

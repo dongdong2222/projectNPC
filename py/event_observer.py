@@ -15,8 +15,9 @@ class EventObserver:
             self.personas[persona_name] = Persona(persona_name, persona_folder)
 
     def save(self):
-        for persona_name, persona in self.personas.items():
-            persona.save(f"environment/persona/{persona_name}")
+        self.personas['John Miller'].save(f"environment/persona/John Miller")
+        # for persona_name, persona in self.personas.items():
+        #     persona.save(f"environment/persona/{persona_name}")
 
     def observe(self, persona_name, event, day_type):
         #event["subject"] : "Isabella Rodriguez"
@@ -25,16 +26,24 @@ class EventObserver:
         #event["description"] : "Isabella Rodriguez be regular"
         return self.personas[persona_name].receive_event(event, self.personas, day_type)
 
+    def add_player(self, first_name, last_name):
+        self.personas[persona_name] = Persona(f"{first_name} {last_name}", "environment/persona/player")
+        self.personas[persona_name].scratch.first_name = first_name
+        self.personas[persona_name].scratch.last_name = last_name
+
+
 
 
 if __name__ == '__main__':
-    persona_name = "Rick Novak"
-    test_event = {
-        "subject" : "bed",
-        "predicate" : "is",
-        "object" : "idle",
-        "description": "idle" # "object의 state : e.g idle, unmade, used"
-    }
+    persona_name = "John Miller"
+    # test_event = {
+    #     "subject" : "bed",
+    #     "predicate" : "is",
+    #     "object" : "idle",
+    #     "description": "idle" # "object의 state : e.g idle, unmade, used"
+    # }
+    test_event1 = {'subject': 'John Miller', 'predicate': 'is', 'object': 'idle', 'description': 'idle'}
+    test_event2 = {'subject': 'Space:SpaceShip:Room101::chair', 'predicate': 'is', 'object': 'idle', 'description': 'idle'}
     # test_event = {
     #     "subject" : "the Ville:Hobbs Cafe:cafe:table",
     #     "predicate" : "is",
@@ -48,7 +57,13 @@ if __name__ == '__main__':
     #     "description": "idle" # "object의 state : e.g idle, unmade, used"
     # }
     event_observer = EventObserver()
-    PromptStructure.load_llama_7B_chat_hf("../../llama2chat7Bhf")
+    PromptStructure.load_llama_7B_chat_hf_and_LoRA("../../llama2chat7Bhf")
     PromptStructure.load_embedding_model()
-    destination = event_observer.observe(persona_name, test_event, "First day")
+    destination = event_observer.observe(persona_name, test_event1, "First day")
     print(destination)
+    # event_observer.save()
+    import datetime
+    # event_observer.personas[persona_name].scratch.act_start_time -= datetime.timedelta(hours=6)
+    # event_observer.personas[persona_name].scratch.curr_time += datetime.timedelta(hours=8)
+    # destination = event_observer.observe(persona_name, test_event2, False)
+    # print(destination)

@@ -40,10 +40,15 @@ class Execute:
 
             persona.scratch.act_path_set = True
 
-        ret = persona.scratch.planned_path
+        # ret = persona.scratch.planned_path
+        #
+        # description = f"{persona.scratch.act_description}"
+        # description += f" @ {persona.scratch.act_address}"
 
-        description = f"{persona.scratch.act_description}"
-        description += f" @ {persona.scratch.act_address}"
+        execution = {}
+        execution["ret"] = persona.scratch.planned_path
+        execution["description"] = persona.scratch.act_description
+        execution["destination"] = persona.scratch.act_address
 
-        execution = ret, persona.scratch.act__pronunciatio, description
+        # execution = ret, persona.scratch.act__pronunciatio, description
         return execution
